@@ -6,6 +6,7 @@ import bodyParser from 'body-parser'
 import './config/mongo.js'
 import authRouter from './routes/auth.js'
 import userRouter from './routes/user.js'
+import filesRouter from './routes/files.js'
 
 const port = process.env.PORT || "4000"
 const options = {
@@ -31,7 +32,8 @@ function verifyToken(req, res, next) {
 }
 
 app.use('/api/auth', authRouter)
-app.use('/api/user', userRouter)
+app.use('/api/users', userRouter)
+app.use('/api/files', filesRouter)
 
 const server = http.createServer(app)
 server.listen(port)

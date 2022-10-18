@@ -11,9 +11,7 @@ export const login = async (req, res, next) => {
     const isComparedPassword = await compare(password, user.password)
     if (!isComparedPassword) return res.status(401).json({ success: false, error: "Unauthorized" })
     const token = createToken(user)
-    const cookie = createCookie(token)
-    res.setHeader('Set-Cookie', [cookie])
-    res.status(200).json({ data: user, message: 'login' })
+    res.status(200).json({ data: user, message: 'login', token: token })
   } catch (error) {
     next(error)
   }
@@ -25,8 +23,4 @@ const createToken = (user) => {
   const secretKey = config.SECRET_KEY
 
   return { expiresIn, token: jwt.sign(dataStoredInToken, secretKey, { expiresIn }) }
-}
-
-const createCookie = (tokenData) => {
-  return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`
 }
