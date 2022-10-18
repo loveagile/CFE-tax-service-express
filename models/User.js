@@ -15,7 +15,10 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     business: String,
-    email: String,
+    email: {
+      type: String,
+      required: true,
+    },
     IDNumber: Number,
     role: {
       type: String,
@@ -23,6 +26,10 @@ const userSchema = new mongoose.Schema(
       default: 'user'
     },
     password: String,
+    activated: {
+      type: Boolean,
+      default: false
+    },
   },
   {
     timestamps: true,

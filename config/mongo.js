@@ -26,17 +26,20 @@ mongoose.connection.on('disconnected', () => {
 })
 
 const hashedPassword = await hash('123456', 10)
-const seedAdmin = [{
+const seedAdmin = new User({
   firstname: 'Kaori',
   lastname: 'Sato',
   username: 'admin',
   email: 'smart.henry327@gmail.com',
+  role: 'admin',
+  activated: true,
   password: hashedPassword,
-}]
+})
 
 const seedDB = async () => {
-  // const seed = new User(seedAdmin)
-  await User.insertMany(seedAdmin)
+  const admin = await User.findOne({ username: seedAdmin.username })
+  if (admin) return
+  await seedAdmin.save()
 }
 
 seedDB()

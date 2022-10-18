@@ -1,4 +1,5 @@
 import express from 'express'
+
 import { onCreateUser, onGetAllUsers, onGetUserById, onUpdateUser, onDeleteUser } from '../controllers/user.js'
 import { decode } from '../middlewares/jwt.js'
 
