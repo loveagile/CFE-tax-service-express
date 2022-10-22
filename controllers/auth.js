@@ -11,7 +11,7 @@ export const login = async (req, res, next) => {
     const isComparedPassword = await compare(password, user.password)
     if (!isComparedPassword) return res.status(401).json({ success: false, error: "Unauthorized" })
     const token = createToken(user)
-    res.status(200).json({ data: user, message: 'login', token: token })
+    return res.status(200).json({ data: user, message: 'login', token: token })
   } catch (error) {
     next(error)
   }
@@ -19,8 +19,17 @@ export const login = async (req, res, next) => {
 
 const createToken = (user) => {
   const dataStoredInToken = { _id: user._id }
-  const expiresIn = 60 * 60
+  const expiresIn = 86400
   const secretKey = config.SECRET_KEY
 
   return { expiresIn, token: jwt.sign(dataStoredInToken, secretKey, { expiresIn }) }
+}
+
+export const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ _id: req.user._id })
+    return res.status(200).json({ user })
+  } catch (error) {
+    next(error)
+  }
 }

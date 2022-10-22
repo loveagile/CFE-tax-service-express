@@ -5,6 +5,9 @@ import User from '../models/User.js'
 
 export const onCreateUser = async (req, res) => {
   try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, error: "Not authrization" })
+    }
     const validation = makeValidation(types => ({
       payload: req.body,
       checks: {
