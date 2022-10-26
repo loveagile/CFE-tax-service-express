@@ -18,7 +18,7 @@ export const login = async (req, res, next) => {
 }
 
 const createToken = (user) => {
-  const dataStoredInToken = { _id: user._id }
+  const dataStoredInToken = { _id: user._id, role: user.role }
   const expiresIn = 86400
   const secretKey = config.SECRET_KEY
 

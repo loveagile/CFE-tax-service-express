@@ -29,9 +29,15 @@ export const uploadFiles = async (req, res, next) => {
       return res.status(400).json({ message: 'No file upload' })
     }
     const user = req.user.id
+    const { category, userId } = req.body
     const { files } = req.files
-
-    Promise.all(files.map(async (file) => {
+    const list = []
+    if (files.length) {
+      for (let i = 0;i < files.length;i++) list.push(files[i])
+    } else {
+      list.push(files)
+    }
+    Promise.all(list.map(async (file) => {
       file.mv('./public/uploads/' + file.name)
       const data = new File({
         name: file.name,
@@ -39,8 +45,8 @@ export const uploadFiles = async (req, res, next) => {
         size: file.size,
         uploaded_at: new Date(),
         from: user,
-        to: req.body.preparer,
-        category_id: req.body.category_id,
+        to: new mongoose.Types.ObjectId(userId),
+        category_id: category,
       })
       const newFile = await data.save()
       return newFile
@@ -51,5 +57,15 @@ export const uploadFiles = async (req, res, next) => {
     })
   } catch (error) {
     next(error)
+  }
+}
+
+export const downloadFile = (req, res, next) => {
+  const { filename } = req.params
+  try {
+    const file = `${process.cwd()}/public/uploads/${filename}`
+    return res.download(file)
+  } catch (err) {
+    res.status(500).json({ success: false, error: err })
   }
 }

@@ -4,17 +4,17 @@ import Category from '../models/Category.js'
 
 export const onCreateCategory = async (req, res) => {
   try {
-    const owner = req.user.id
-    if (req.user.role === 'admin') {
+    let owner = req.user._id
+    if (req.user.role === 'admin' && req.body.owner) {
       owner = req.body.owner
     }
-    const category = await Category.findOne({ id: owner, name: req.body.name })
+    const category = await Category.findOne({ owner: owner, name: req.body.category })
     if (category) {
       return res.status(422).json({ success: false, error: "The category is exist." })
     }
-    const newCategory = new Category({ name: req.body.name, owner: new mongoose.Types.ObjectId(owner) })
+    const newCategory = new Category({ name: req.body.category, owner: new mongoose.Types.ObjectId(owner) })
     const savedCategory = await newCategory.save()
-    return res.status(201).json({ success: true, savedCategory })
+    return res.status(201).json({ success: true, category: savedCategory })
   } catch (error) {
     return res.status(500).json({ success: false, error: error })
   }
@@ -31,9 +31,14 @@ export const onGetCategory = async (req, res) => {
 
 export const onGetAllCategories = async (req, res) => {
   try {
-    let owner = req.user._id
+    let owner = req.params.id || req.user._id
 
     Category.aggregate([
+      {
+        $match: {
+          owner: new mongoose.Types.ObjectId(owner),
+        }
+      },
       {
         $lookup: {
           from: 'files',
@@ -53,19 +58,10 @@ export const onGetAllCategories = async (req, res) => {
                   ],
                 },
               },
-
             }
           ],
           as: 'files',
         },
-      },
-      {
-        $match: {
-          owner: new mongoose.Types.ObjectId(owner),
-          files: {
-            $ne: []
-          }
-        }
       },
     ], function (err, categories) {
       if (err) return res.status(500).json({ success: false, err })
@@ -98,7 +94,7 @@ export const onDeleteCategory = async (req, res) => {
       return res.status(403).json({ success: false, error: "Not authrization" })
     }
     const deletedCategory = await category.delete()
-    return res.status(204).json({ success: true, deletedCategory })
+    return res.status(204).json({ success: true })
   } catch (error) {
     return res.status(500).json({ success: false, error: error })
   }
