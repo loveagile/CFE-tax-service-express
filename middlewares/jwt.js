@@ -10,7 +10,7 @@ export const encode = async (req, res, next) => {
       userId: user._id,
       role: user.role,
     }
-    const authToken = jwt.sign(payload, config.SECRET_KEY, { expiresIn: '86400s' })
+    const authToken = jwt.sign(payload, config.SECRET_KEY, { expiresIn: 86400 })
     req.authToken = authToken
     next()
   } catch (error) {
