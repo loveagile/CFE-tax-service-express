@@ -69,3 +69,13 @@ export const downloadFile = (req, res, next) => {
     res.status(500).json({ success: false, error: err })
   }
 }
+
+export const deleteFile = async (req, res, next) => {
+  try {
+    const file = await File.findOne({ _id: req.params.id })
+    await file.delete()
+    return res.status(204).json({ success: true })
+  } catch (error) {
+    return res.status(500).json({ success: false })
+  }
+}
