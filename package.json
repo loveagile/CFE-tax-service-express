@@ -11,6 +11,7 @@
     "mongoose": "^6.6.5",
     "morgan": "^1.10.0",
     "request": "^2.88.2",
+    "serve": "^14.0.1",
     "socket.io": "^4.5.3"
   },
   "scripts": {
