@@ -16,7 +16,8 @@
   },
   "scripts": {
     "start": "node index.js",
-    "start:server": "node index.js"
+    "start:server": "node index.js",
+    "heroku-postbuild": "npm run build"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
