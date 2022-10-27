@@ -10,11 +10,12 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.6.5",
     "morgan": "^1.10.0",
+    "node": "^19.0.0",
     "request": "^2.88.2",
     "socket.io": "^4.5.3"
   },
   "scripts": {
-    "start": "nodemon index.js",
+    "start": "node index.js",
     "start:server": "node index.js"
   },
   "devDependencies": {
