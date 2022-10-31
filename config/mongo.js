@@ -4,7 +4,7 @@ import { hash } from 'bcrypt'
 import User from '../models/User.js'
 import config from './index.js'
 
-const CONNECTION_URL = `mongodb://${config.db.url}/${config.db.name}`
+const CONNECTION_URL = process.env.MONGODB_URI || `mongodb://${config.db.url}/${config.db.name}`
 
 mongoose.connect(CONNECTION_URL, {
   useNewUrlParser: true,

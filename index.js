@@ -12,7 +12,7 @@ import './config/mongo.js'
 
 const port = process.env.PORT || "4000"
 const options = {
-  origin: 'http://localhost:4000',
+  origin: 'http://localhost:' + port,
   'Access-Control-Allow-Origin': 'https://localhost:4000'
 }
 
