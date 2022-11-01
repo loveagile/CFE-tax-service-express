@@ -4,11 +4,12 @@ import { hash } from 'bcrypt'
 import User from '../models/User.js'
 import config from './index.js'
 
-const CONNECTION_URL = process.env.MONGODB_URI || `mongodb://${config.db.url}/${config.db.name}`
+const CONNECTION_URL =
+  process.env.MONGODB_URI || `mongodb://${config.db.url}/${config.db.name}`
 
 mongoose.connect(CONNECTION_URL, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 })
 
 mongoose.connection.on('connected', () => {
@@ -17,7 +18,7 @@ mongoose.connection.on('connected', () => {
 mongoose.connection.on('reconnected', () => {
   console.log('Mongo has reconnected')
 })
-mongoose.connection.on('error', error => {
+mongoose.connection.on('error', (error) => {
   console.log('Mongo connection has an error', error)
   mongoose.disconnect()
 })
@@ -37,9 +38,11 @@ const seedAdmin = new User({
 })
 
 const seedDB = async () => {
-  const admin = await User.findOne({ username: seedAdmin.username })
-  if (admin) return
-  await seedAdmin.save()
+  try {
+    const admin = await User.findOne({ username: seedAdmin.username })
+    if (admin) return
+    await seedAdmin.save()
+  } catch (err) {}
 }
 
 seedDB()

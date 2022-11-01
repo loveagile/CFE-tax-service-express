@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import fileUpload from 'express-fileupload'
 import bodyParser from 'body-parser'
+import herokuSSLRedirect from 'heroku-ssl-redirect'
 
 import authRouter from './routes/auth.js'
 import userRouter from './routes/user.js'
@@ -16,8 +17,10 @@ const options = {
   'Access-Control-Allow-Origin': 'https://localhost:4000'
 }
 
+const sslRedirect = herokuSSLRedirect.default
 const app = express()
 app.set("port", port)
+app.use(sslRedirect())
 app.use(fileUpload({
   createParentPath: true
 }))
