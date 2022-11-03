@@ -13,7 +13,7 @@ mongoose.connect(CONNECTION_URL, {
 })
 
 mongoose.connection.on('connected', () => {
-  console.log('Mongo has connected succesfully')
+  console.log('Mongo has connected successfully')
 })
 mongoose.connection.on('reconnected', () => {
   console.log('Mongo has reconnected')

@@ -8,8 +8,9 @@ export const login = async (req, res, next) => {
   try {
     const { username, password } = req.body
     const user = await User.findOne({ username: username })
-    const isComparedPassword = await compare(password, user.password)
-    if (!isComparedPassword) return res.status(401).json({ success: false, error: "Unauthorized" })
+    const isComparedPassword = await compare(password, user && user.password)
+    if (!isComparedPassword)
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
     const token = createToken(user)
     return res.status(200).json({ data: user, message: 'login', token: token })
   } catch (error) {
@@ -22,7 +23,10 @@ const createToken = (user) => {
   const expiresIn = 86400
   const secretKey = config.SECRET_KEY
 
-  return { expiresIn, token: jwt.sign(dataStoredInToken, secretKey, { expiresIn }) }
+  return {
+    expiresIn,
+    token: jwt.sign(dataStoredInToken, secretKey, { expiresIn }),
+  }
 }
 
 export const getCurrentUser = async (req, res, next) => {
