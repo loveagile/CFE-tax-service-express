@@ -1,14 +1,62 @@
 import mongoose from 'mongoose'
 
 import File from '../models/File.js'
+import Category from '../models/Category.js'
+import User from '../models/User.js'
 
-export const getFiles = async (req, res, next) => {
+const getFiles = async (id) => {
   try {
-    const user = req.user
-    const files = await File.find({ from: new mongoose.Types.ObjectId(user.userId) })
-    return res.status(200).json({ files })
+    return await Category.aggregate([
+      {
+        $match: {
+          owner: new mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: 'files',
+          let: {
+            categoryId: '$_id',
+            user_id: '$owner',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    {
+                      $toObjectId: '$category_id',
+                    },
+                    '$$categoryId',
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'files',
+        },
+      },
+    ]).exec()
   } catch (error) {
-    next(error)
+    return error
+  }
+}
+
+export const getAllFiles = async (req, res, next) => {
+  try {
+    let from = req.params.id || req.user._id
+    const filesByFrom = await getFiles(from)
+    if (from.role === 'admin') {
+      return res
+        .status(200)
+        .json({ success: true, filesByFrom, filesByTo: filesByFrom })
+    }
+    const admin = await User.findOne({ username: 'admin' })
+    const filesByTo = await getFiles(admin._id)
+
+    return res.status(200).json({ success: true, filesByFrom, filesByTo })
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error })
   }
 }
 
@@ -33,28 +81,32 @@ export const uploadFiles = async (req, res, next) => {
     const { files } = req.files
     const list = []
     if (files.length) {
-      for (let i = 0;i < files.length;i++) list.push(files[i])
+      for (let i = 0; i < files.length; i++) list.push(files[i])
     } else {
       list.push(files)
     }
-    Promise.all(list.map(async (file) => {
-      file.mv('./public/uploads/' + file.name)
-      const data = new File({
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        uploaded_at: new Date(),
-        from: user,
-        to: new mongoose.Types.ObjectId(userId),
-        category_id: category,
+    Promise.all(
+      list.map(async (file) => {
+        file.mv('./public/uploads/' + file.name)
+        const data = new File({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          uploaded_at: new Date(),
+          from: user,
+          to: mongoose.Types.ObjectId(userId),
+          category_id: category,
+        })
+        const newFile = await data.save()
+        return newFile
       })
-      const newFile = await data.save()
-      return newFile
-    })).then(values => {
-      return res.status(200).json({ success: true, files: values })
-    }).catch(error => {
-      return res.status(500).json({ success: false, error: error })
-    })
+    )
+      .then((values) => {
+        return res.status(200).json({ success: true, files: values })
+      })
+      .catch((error) => {
+        return res.status(500).json({ success: false, error: error })
+      })
   } catch (error) {
     next(error)
   }
