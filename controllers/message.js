@@ -14,29 +14,21 @@ export const getAllMessages = async (req, res, next) => {
     let messages = []
     if (receiver) {
       messages = await Message.find({
-        $expr: {
-          $and: [
-            {
-              $or: [
-                { sender: new mongoose.Types.ObjectId(sender) },
-                { receiver: new mongoose.Types.ObjectId(sender) },
-              ],
-            },
-            {
-              $or: [
-                { sender: new mongoose.Types.ObjectId(receiver) },
-                { receiver: new mongoose.Types.ObjectId(receiver) },
-              ],
-            },
-          ],
-        },
+        $or: [
+          {
+            $and: [{ sender: sender }, { receiver: receiver }],
+          },
+          {
+            $and: [{ sender: receiver }, { receiver: sender }],
+          },
+        ],
       })
     } else {
       messages = await Message.find({
         $expr: {
           $or: [
-            { sender: new mongoose.Types.ObjectId(sender) },
-            { receiver: new mongoose.Types.ObjectId(sender) },
+            { sender: mongoose.Types.ObjectId(sender) },
+            { receiver: mongoose.Types.ObjectId(sender) },
           ],
         },
       })
