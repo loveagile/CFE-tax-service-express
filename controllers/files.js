@@ -4,13 +4,17 @@ import File from '../models/File.js'
 import Category from '../models/Category.js'
 import User from '../models/User.js'
 
-const getFiles = async (id) => {
+const getFiles = async (to, from = '') => {
+  const match = {
+    owner: new mongoose.Types.ObjectId(to),
+  }
+  if (from !== '') {
+    Object.assign(match, { to: new mongoose.Types.ObjectId(from) })
+  }
   try {
     return await Category.aggregate([
       {
-        $match: {
-          owner: new mongoose.Types.ObjectId(id),
-        },
+        $match: match,
       },
       {
         $lookup: {
@@ -44,17 +48,25 @@ const getFiles = async (id) => {
 
 export const getAllFiles = async (req, res, next) => {
   try {
-    let from = req.params.id || req.user._id
-    const filesByFrom = await getFiles(from)
-    if (from.role === 'admin') {
+    let to = req.user._id,
+      from = req.params.id || ''
+    if (req.user.role === 'admin' && from) {
+      const filesByFrom = await getFiles(to, from)
+      const filesByTo = await getFiles(from, to)
+      return res
+        .status(200)
+        .json({ success: true, filesByFrom, filesByTo: filesByTo })
+    } else if (req.user.role === 'user') {
+      const admin = await User.findOne({ username: 'admin' })
+      const filesByFrom = await getFiles(to, admin._id)
+      const filesByTo = await getFiles(admin._id, to)
+      return res.status(200).json({ success: true, filesByFrom, filesByTo })
+    } else {
+      const filesByFrom = await getFiles(to)
       return res
         .status(200)
         .json({ success: true, filesByFrom, filesByTo: filesByFrom })
     }
-    const admin = await User.findOne({ username: 'admin' })
-    const filesByTo = await getFiles(admin._id)
-
-    return res.status(200).json({ success: true, filesByFrom, filesByTo })
   } catch (error) {
     return res.status(500).json({ success: false, error: error })
   }

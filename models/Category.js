@@ -1,17 +1,19 @@
 import mongoose, { Schema } from 'mongoose'
 
-const categorySchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
-    owner: {
-      type: Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    created_at: Date,
-  }
-)
+const categorySchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  to: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  created_at: Date,
+})
 
-export default mongoose.model("Category", categorySchema)
+export default mongoose.model('Category', categorySchema)
