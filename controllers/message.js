@@ -41,7 +41,7 @@ export const getAllMessages = async (req, res, next) => {
 
 export const addMessage = async (data, req) => {
   const message = data
-  if (!message?.receiver) {
+  if (!message.receiver) {
     const admin = await User.findOne({ username: 'admin' })
     Object.assign(message, { receiver: admin._id })
   }
