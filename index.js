@@ -11,6 +11,8 @@ import userRouter from './routes/user.js'
 import filesRouter from './routes/files.js'
 import categoryRouter from './routes/category.js'
 import messageRouter from './routes/message.js'
+import profileRouter from './routes/profile.js'
+import dependentRouter from './routes/dependent.js'
 import { addMessage } from './controllers/message.js'
 import './config/mongo.js'
 
@@ -43,6 +45,8 @@ app.use('/api/users', userRouter)
 app.use('/api/files', filesRouter)
 app.use('/api/categories', categoryRouter)
 app.use('/api/messages', messageRouter)
+app.use('/api/profile', profileRouter)
+app.use('/api/dependents', dependentRouter)
 
 server.listen(port, (error) => {
   if (!error)
@@ -54,7 +58,7 @@ server.listen(port, (error) => {
 
 io.on('connection', async (socket) => {
   socket.on('send-message', async (data) => {
-    const messages = await addMessage(data)
-    io.emit('messages', messages)
+    const newMessage = await addMessage(data)
+    io.emit('new-message', newMessage)
   })
 })

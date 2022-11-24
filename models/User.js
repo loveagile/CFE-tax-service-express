@@ -18,22 +18,26 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      unique: true,
     },
-    IDNumber: Number,
+    IDNumber: {
+      type: String,
+      unique: true,
+    },
     role: {
       type: String,
       enum: ['admin', 'user'],
-      default: 'user'
+      default: 'user',
     },
     password: String,
     activated: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   {
     timestamps: true,
-    collection: "users"
+    collection: 'users',
   }
 )
 
@@ -55,4 +59,4 @@ export const createUser = async (newUser) => {
   }
 }
 
-export default mongoose.model("User", userSchema)
+export default mongoose.model('User', userSchema)

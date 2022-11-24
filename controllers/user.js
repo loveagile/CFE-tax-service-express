@@ -6,30 +6,31 @@ import User from '../models/User.js'
 export const onCreateUser = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, error: "Not authrization" })
+      return res.status(403).json({ success: false, error: 'Not authrization' })
     }
-    const validation = makeValidation(types => ({
+    const validation = makeValidation((types) => ({
       payload: req.body,
       checks: {
         username: {
           type: types.string,
-          options: { unique: true, empty: false }
-        }
-      }
+          options: { unique: true, empty: false },
+        },
+      },
     }))
-    if (!validation.success)
-      return res.status(422).json(validation)
+    if (!validation.success) return res.status(422).json(validation)
     const { username } = req.body
     const user = await User.findOne({ username })
     if (user) {
-      return res.status(422).json({ success: false, error: "The user is exist." })
+      return res
+        .status(422)
+        .json({ success: false, error: 'The user is exist.' })
     }
     const newUser = new User(req.body)
     if (newUser.password) {
       newUser.password = await hash(req.body.password, 10)
     }
     const savedUser = await newUser.save()
-    return res.status(201).json({ success: true, savedUser })
+    return res.status(201).json({ success: true, user: savedUser })
   } catch (error) {
     return res.status(500).json({ success: false, error: error })
   }
@@ -48,7 +49,9 @@ export const onGetAllUsers = async (req, res) => {
   try {
     const user = req.user
     if (user.role !== 'admin') {
-      return res.status(403).json({ success: false, error: 'You are not authorized' })
+      return res
+        .status(403)
+        .json({ success: false, error: 'You are not authorized' })
     }
     const users = await User.find({ _id: { $ne: user._id } })
     return res.status(200).json({ success: true, users })
@@ -65,8 +68,14 @@ export const onUpdateUser = async (req, res) => {
       updatedUser.password = await hash(updatedUser.password, 10)
     }
     Object.assign(user, updatedUser)
-    user.save()
-
+    const exist = await User.findOne({ email: user.email })
+    if (exist) {
+      return res
+        .status(422)
+        .json({ success: false, error: 'Email is already exist' })
+    } else {
+      user.save()
+    }
     return res.status(200).json({ success: true, user })
   } catch (error) {
     return res.status(500).json({ success: false, error: error })
