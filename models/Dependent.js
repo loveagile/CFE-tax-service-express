@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const dependentSchema = new mongoose.Schema({
-  profile_id: {
+  user_id: {
     type: mongoose.Types.ObjectId,
     required: true,
   },
