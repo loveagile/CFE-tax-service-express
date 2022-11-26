@@ -9,8 +9,8 @@ import {
 import { decode } from '../middlewares/jwt.js'
 
 const router = express.Router()
-router.get('/:id', decode, getDependents)
-router.post('/:id', decode, addDependent)
+router.get('/', decode, getDependents)
+router.post('/', decode, addDependent)
 router.put('/:id', decode, editDependent)
 router.delete('/:id', decode, deleteDependent)
 

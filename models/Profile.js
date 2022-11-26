@@ -21,7 +21,7 @@ const profileSchema = new mongoose.Schema({
   city: String,
   state: String,
   zip: String,
-  country: String,
+  county: String,
 })
 
 export default mongoose.model('Profile', profileSchema)
