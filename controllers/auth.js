@@ -1,4 +1,4 @@
-import { compare } from 'bcrypt'
+import { compare, hash } from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 import config from '../config/index.js'
@@ -35,5 +35,23 @@ export const getCurrentUser = async (req, res, next) => {
     return res.status(200).json({ user })
   } catch (error) {
     next(error)
+  }
+}
+
+export const setAccount = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ _id: req.user._id })
+    if (!user) {
+      return res.status(500).json({ success: false })
+    }
+    const data = req.body
+    if (data.password && data.confirm) {
+      data.password = await hash(data.password, 10)
+    }
+    Object.assign(user, data)
+    user.save()
+    return res.status(200).json({ success: true, user: user })
+  } catch (error) {
+    return res.status(500).json({ error })
   }
 }
