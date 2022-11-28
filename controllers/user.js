@@ -27,7 +27,7 @@ export const onCreateUser = async (req, res) => {
     }
     const newUser = new User(req.body)
     if (newUser.password) {
-      newUser.password = await hash(req.body.password, 10)
+      newUser.password = await hash(req.body.password || '12345678', 10)
     }
     const savedUser = await newUser.save()
     return res.status(201).json({ success: true, user: savedUser })
