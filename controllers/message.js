@@ -54,14 +54,26 @@ export const addMessage = async (data, req) => {
   }
 }
 
-export const createMessage = async (req, res, next) => {
+export const createMessageWithAdmin = async (req, res, next) => {
   const message = req.body
   Object.assign(message, { sender: req.user._id })
   if (req.user?.role !== 'admin') {
     const admin = await User.findOne({ username: 'admin' })
     Object.assign(message, { receiver: admin._id })
   }
-
+  try {
+    const newMessage = await new Message(message).save()
+    return res.status(200).json({ message: newMessage })
+  } catch (error) {
+    next(error)
+  }
+}
+export const createMessage = async (req, res, next) => {
+  const message = req.body
+  Object.assign(message, { sender: req.user._id })
+  if (req.user?.role === 'admin') {
+    Object.assign(message, { receiver: req.params?.id })
+  }
   try {
     const newMessage = await new Message(message).save()
     return res.status(200).json({ message: newMessage })
