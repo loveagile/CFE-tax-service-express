@@ -1,5 +1,3 @@
-import mongoose from 'mongoose'
-
 import Dependent from '../models/Dependent.js'
 
 export const getDependents = async (req, res, next) => {

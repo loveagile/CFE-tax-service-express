@@ -46,7 +46,7 @@ const getFiles = async (to, from = '') => {
   }
 }
 
-export const getAllFiles = async (req, res, next) => {
+export const getAllFiles = async (req, res) => {
   try {
     let to = req.user._id,
       from = req.params.id || ''
@@ -124,7 +124,7 @@ export const uploadFiles = async (req, res, next) => {
   }
 }
 
-export const downloadFile = (req, res, next) => {
+export const downloadFile = (req, res) => {
   const { filename } = req.params
   try {
     const file = `${process.cwd()}/public/uploads/${filename}`
@@ -134,7 +134,7 @@ export const downloadFile = (req, res, next) => {
   }
 }
 
-export const deleteFile = async (req, res, next) => {
+export const deleteFile = async (req, res) => {
   try {
     const file = await File.findOne({ _id: req.params.id })
     await file.delete()
