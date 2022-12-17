@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import Message from '../models/Message.js'
 import User from '../models/User.js'
 
-export const getAllMessages = async (req, res, next) => {
+export const getAllMessages = async (req, res) => {
   const sender = req.user?._id
   let receiver = req.params?.id || ''
   if (receiver === '' && req.user?.role !== 'admin') {

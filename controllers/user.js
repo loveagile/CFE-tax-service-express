@@ -18,17 +18,21 @@ export const onCreateUser = async (req, res) => {
       },
     }))
     if (!validation.success) return res.status(422).json(validation)
-    const { username } = req.body
-    const user = await User.findOne({ username })
+    const { username, email } = req.body
+    let user = await User.findOne({ email })
     if (user) {
       return res
         .status(422)
-        .json({ success: false, error: 'The user is exist.' })
+        .json({ success: false, error: 'This email is exist' })
+    }
+    user = await User.findOne({ username })
+    if (user) {
+      return res
+        .status(422)
+        .json({ success: false, error: 'This username is exist' })
     }
     const newUser = new User(req.body)
-    if (newUser.password) {
-      newUser.password = await hash(req.body.password || '12345678', 10)
-    }
+    newUser.password = await hash(req.body.password || '12345678', 10)
     const savedUser = await newUser.save()
     return res.status(201).json({ success: true, user: savedUser })
   } catch (error) {
