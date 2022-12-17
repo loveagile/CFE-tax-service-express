@@ -72,14 +72,7 @@ export const onUpdateUser = async (req, res) => {
       updatedUser.password = await hash(updatedUser.password, 10)
     }
     Object.assign(user, updatedUser)
-    const exist = await User.findOne({ email: user.email })
-    if (exist) {
-      return res
-        .status(422)
-        .json({ success: false, error: 'Email is already exist' })
-    } else {
-      user.save()
-    }
+    user.save()
     return res.status(200).json({ success: true, user })
   } catch (error) {
     return res.status(500).json({ success: false, error: error })
