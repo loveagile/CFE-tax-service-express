@@ -1,6 +1,5 @@
 import { compare, hash } from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import nodemailer from 'nodemailer'
 
 import config from '../config/index.js'
 import User from '../models/User.js'
@@ -68,6 +67,35 @@ export const forgotPassword = async (req, res, next) => {
     return res
       .status(200)
       .json({ link: `${config.CLIENT_URL}/reset/${token.token}` })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getUserByToken = async (req, res, next) => {
+  try {
+    const { token } = req.params
+
+    jwt.verify(token, config.SECRET_KEY, (err, user) => {
+      if (err) return res.status(403).json({ success: false, message: err })
+      return res.status(200).json({ success: true, user })
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const updatePassword = async (req, res, next) => {
+  try {
+    const { password } = req.body
+    const user = await User.findOne({ _id: req.params?._id })
+    if (!user) {
+      return res.status(500).json({ success: false })
+    }
+    const hashedPassword = await hash(password, 10)
+    Object.assign(user, { password: hashedPassword })
+    user.save()
+    return res.status(200).json({ success: true, user })
   } catch (error) {
     next(error)
   }
