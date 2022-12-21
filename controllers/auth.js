@@ -66,7 +66,7 @@ export const forgotPassword = async (req, res, next) => {
     const token = createToken(user)
     return res
       .status(200)
-      .json({ link: `${config.CLIENT_URL}/reset/${token.token}` })
+      .json({ link: `${config.CLIENT_URL}/reset/${token.token}`, email })
   } catch (error) {
     next(error)
   }
