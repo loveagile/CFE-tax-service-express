@@ -65,29 +65,9 @@ export const forgotPassword = async (req, res, next) => {
       return res.status(403).json({ success: false })
     }
     const token = createToken(user)
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_ADDRESS,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    })
-    const mailOptions = {
-      from: process.env.EMAIL_ADDRESS,
-      to: user.email,
-      subject: 'Link to reset password',
-      text: `You can reset the password using the following link.\n
-      http://localhost:3000/reset/${token.token}`,
-    }
-    console.log('sending email')
-    transporter.sendMail(mailOptions, (err, response) => {
-      if (err) {
-        next(err)
-      } else {
-        console.log('response', response)
-        return res.status(200).json('Recovery email sent')
-      }
-    })
+    return res
+      .status(200)
+      .json({ link: `${config.CLIENT_URL}/reset/${token.token}` })
   } catch (error) {
     next(error)
   }
