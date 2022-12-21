@@ -5,6 +5,7 @@ import fileUpload from 'express-fileupload'
 import bodyParser from 'body-parser'
 import { Server } from 'socket.io'
 import herokuSSLRedirect from 'heroku-ssl-redirect'
+import * as dotenv from 'dotenv'
 
 import authRouter from './routes/auth.js'
 import userRouter from './routes/user.js'
@@ -15,6 +16,8 @@ import profileRouter from './routes/profile.js'
 import dependentRouter from './routes/dependent.js'
 import { addMessage } from './controllers/message.js'
 import './config/mongo.js'
+
+dotenv.config()
 
 const port = process.env.PORT || '4000'
 const sslRedirect = herokuSSLRedirect.default

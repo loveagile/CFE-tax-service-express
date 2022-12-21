@@ -1,5 +1,6 @@
 import { compare, hash } from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import nodemailer from 'nodemailer'
 
 import config from '../config/index.js'
 import User from '../models/User.js'
@@ -38,7 +39,7 @@ export const getCurrentUser = async (req, res, next) => {
   }
 }
 
-export const setAccount = async (req, res) => {
+export const setAccount = async (req, res, next) => {
   try {
     const user = await User.findOne({ _id: req.user._id })
     if (!user) {
@@ -52,6 +53,42 @@ export const setAccount = async (req, res) => {
     user.save()
     return res.status(200).json({ success: true, user: user })
   } catch (error) {
-    return res.status(500).json({ error })
+    next(error)
+  }
+}
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email, userid } = req.body
+    const user = await User.findOne({ email: email, IDNumber: userid })
+    if (!user) {
+      return res.status(403).json({ success: false })
+    }
+    const token = createToken(user)
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_ADDRESS,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    })
+    const mailOptions = {
+      from: process.env.EMAIL_ADDRESS,
+      to: user.email,
+      subject: 'Link to reset password',
+      text: `You can reset the password using the following link.\n
+      http://localhost:3000/reset/${token.token}`,
+    }
+    console.log('sending email')
+    transporter.sendMail(mailOptions, (err, response) => {
+      if (err) {
+        next(err)
+      } else {
+        console.log('response', response)
+        return res.status(200).json('Recovery email sent')
+      }
+    })
+  } catch (error) {
+    next(error)
   }
 }
