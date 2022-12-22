@@ -58,15 +58,23 @@ export const setAccount = async (req, res, next) => {
 
 export const forgotPassword = async (req, res, next) => {
   try {
-    const { email, userid } = req.body
-    const user = await User.findOne({ email: email, IDNumber: userid })
+    const { type, param } = req.body
+    let user
+    if (type === 'email') {
+      user = await User.findOne({ email: param })
+    } else {
+      user = await User.findOne({ IDNumber: param })
+    }
     if (!user) {
       return res.status(403).json({ success: false })
     }
     const token = createToken(user)
     return res
       .status(200)
-      .json({ link: `${config.CLIENT_URL}/reset/${token.token}`, email })
+      .json({
+        link: `${config.CLIENT_URL}/reset/${token.token}`,
+        email: user?.email,
+      })
   } catch (error) {
     next(error)
   }
